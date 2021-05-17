@@ -15,6 +15,15 @@ const routes: Routes = [
         }
     },
     {
+        path: 'add',
+        component: UserComponent,
+        //canActivate: [AuthGuard],
+        data: {
+            title: 'User',
+            //requiredPermission: [RoleType.SuperAdmin]
+        }
+    },
+    {
         path: ':id',
         component: UserComponent,
         //canActivate: [AuthGuard],

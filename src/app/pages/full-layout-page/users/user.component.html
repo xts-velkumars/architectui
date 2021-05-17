@@ -1,1 +1,158 @@
-<p>user works!</p>
+<app-page-title [heading]="heading" [subheading]="subheading" [icon]="icon"></app-page-title>
+
+<!--<div class="page-title-actions">
+    <button type="button" class="btn-shadow mr-3 btn btn-dark">
+        <fa-icon [icon]="'faCoffee'"></fa-icon>
+    </button>
+    <button type="button" class="btn-shadow d-inline-flex align-items-center btn btn-success" (click)="deleteProduct(product.id)">
+        <fa-icon [icon]="'faCoffee'" class="mr-2"></fa-icon>
+        Create New
+    </button>
+</div>-->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-content">
+                <div class="card-body">
+                    <form [formGroup]="userForm" novalidate="">
+                        <div class="row">
+                            <div class="col-md-6 col-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="horizontal-form-1">First Name</label>
+                                    <div class="col-md-8">
+                                        <input type="text" formControlName="firstName" class="form-control" placeholder="First Name"
+                                               maxlength="25"
+                                               [ngClass]="{ 'is-invalid': (userFormSubmitted || lf.firstName.touched) && lf.firstName.invalid,
+                                                                 'is-valid': !lf.firstName.invalid }"
+                                               required>
+
+                                        <div *ngIf="(userFormSubmitted || lf.firstName.touched) && (lf.firstName.invalid && lf.firstName.errors?.required)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> First Name is required
+                                        </div>
+
+                                        <div *ngIf="(userFormSubmitted || lf.firstName.touched) && (lf.firstName.invalid && lf.firstName.errors?.pattern)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> First Name should be alphabets
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="horizontal-form-2">Last Name</label>
+                                    <div class="col-md-8">
+                                        <input type="text" formControlName="lastName" class="form-control" placeholder="Last Name"
+                                               maxlength="25"
+                                               [ngClass]="{ 'is-invalid': (userFormSubmitted || lf.lastName.touched) && lf.lastName.invalid,
+                                                                'is-valid': !lf.lastName.invalid }"
+                                               required>
+
+                                        <div *ngIf="(userFormSubmitted || lf.lastName.touched) && (lf.lastName.invalid && lf.lastName.errors?.required)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> Last Name is required
+                                        </div>
+
+                                        <div *ngIf="(userFormSubmitted || lf.lastName.touched) && (lf.lastName.invalid && lf.lastName.errors?.pattern)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> Last Name should be alphabets
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-md-3">
+                            <div class="col-md-6 col-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="horizontal-form-3">Mobile Number</label>
+                                    <div class="col-md-8">
+                                        <input type="text" mask=" (000) 000 0000" prefix="+1" [showMaskTyped]="true"
+                                               formControlName="mobileNumber" class="form-control" placeholder="Mobile Number"
+                                               [ngClass]="{ 'is-invalid': (userFormSubmitted || lf.mobileNumber.touched) && lf.mobileNumber.invalid,
+                                                                'is-valid':  !lf.mobileNumber.invalid }" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="horizontal-form-4">Email</label>
+                                    <div class="col-md-8">
+                                        <input type="text" formControlName="emailAddress" class="form-control" placeholder="Email"
+                                               maxlength="50" autocomplete="off"
+                                               [ngClass]="{ 'is-invalid': (userFormSubmitted  || lf.emailAddress.touched) && lf.emailAddress.invalid,
+                                                                'is-valid': !lf.emailAddress.invalid }"
+                                               required>
+
+                                        <div *ngIf="(userFormSubmitted || lf.emailAddress.touched) && (lf.emailAddress.invalid && lf.emailAddress.errors?.required)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> Email Address is required
+                                        </div>
+                                        <div *ngIf="(userFormSubmitted || lf.emailAddress.touched) && (lf.emailAddress.invalid && lf.emailAddress.errors?.email)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> Invalid Email Address
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-md-3">
+                            <div class="col-md-6 col-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="horizontal-form-3">Password</label>
+                                    <div class="col-md-8">
+                                        <input type="password" formControlName="password" class="form-control" placeholder="Password"
+                                               maxlength="25"
+                                               [ngClass]="{ 'is-invalid': (userFormSubmitted || lf.password.touched) && lf.password.invalid,
+                                                                'is-valid': !lf.password.invalid }"
+                                               required>
+
+                                        <div *ngIf="(userFormSubmitted || lf.password.touched) && lf.password.errors?.required"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> Password is required
+                                        </div>
+                                        <div *ngIf=" (userFormSubmitted || lf.password.touched) && lf.password.errors?.pattern"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"> </i>
+                                            Password must be 8-25 characters and at least 1 uppercase, 1 lowercase, 1 digit, 1 special character's (@#$%)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="horizontal-form-4">Confirm Password</label>
+                                    <div class="col-md-8">
+                                        <input type="password" formControlName="confirmPassword" class="form-control" placeholder="Confirm Password"
+                                               maxlength="25"
+                                               [ngClass]="{ 'is-invalid': (userFormSubmitted || lf.confirmPassword.touched) && lf.confirmPassword.invalid,
+                                                                'is-valid':   !lf.confirmPassword.invalid }"
+                                               required>
+
+                                        <div *ngIf="(userFormSubmitted || lf.confirmPassword.touched) && (lf.confirmPassword.invalid && lf.confirmPassword.errors?.required)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> Confirm Password is required
+                                        </div>
+
+                                        <div *ngIf="(userFormSubmitted || lf.confirmPassword.touched) && (lf.confirmPassword.invalid && lf.confirmPassword.errors?.passwordsNotMatching)"
+                                             class="help-block mt-1 text-danger">
+                                            <i class="ft-alert-circle align-middle"></i> Passwords must match
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button-bar pull-right">
+                            <button type="button" class="mb-2 mr-2 btn-shadow d-inline-flex align-items-center btn btn-warning" [routerLink]="'/users'">
+                                <i-feather name="x" class="mr-2"></i-feather> Cancel
+                            </button>
+                            <button type="submit" class="mb-2 mr-2 btn-shadow d-inline-flex align-items-center btn btn-primary" (click)="saveUser()">
+                                <i-feather name="check-square" class="mr-2"></i-feather>Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,1 +1,50 @@
-<p>users works!</p>
+<app-page-title [heading]="heading" [subheading]="subheading" [icon]="icon"></app-page-title>
+
+<div class="row">
+    <div class="pull-right button-bar">
+        <button type="button" title="Refresh" class="mb-2 mr-2 btn-shadow d-inline-flex align-items-center btn btn-secondary" (click)="refresh()">
+            <i-feather name="refresh-cw" class="mr-2"></i-feather>
+            Refresh
+        </button>
+        <button type="button" class="mb-2 mr-2 btn-shadow d-inline-flex align-items-center btn btn-primary" [routerLink]="'/users/0'">
+            <i-feather name="plus" class="mr-2"></i-feather>
+            Add User
+        </button>
+    </div>
+</div>
+
+<ngx-datatable class="bootstrap core-bootstrap"
+               [rows]="(users$ | async)"
+               [columns]="columns"
+               [columnMode]="ColumnMode.force"
+               [headerHeight]="50"
+               [footerHeight]="50"
+               [limit]="5"
+               rowWidth="auto"
+               rowHeight="auto">
+
+    <ngx-datatable-column name="Id" prop="id">
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Name" prop="fullName">
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Email" prop="emailAddress">
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Actions">
+        <ng-template ngx-datatable-cell-template let-row="row">
+            <div>
+                <a class="info p-0" [routerLink]="['/users', row.id]">
+                    <i-feather name="edit" class="mr-2 fa-2x" title="Edit"></i-feather>
+                </a>
+                <a class="danger p-0">
+                    <i-feather name="trash2" class="mr-2 fa-2x" title="Delete" (click)="onDelete(row)"></i-feather>
+                </a>
+            </div>
+        </ng-template>
+
+    </ngx-datatable-column>
+
+
+</ngx-datatable>

@@ -1,0 +1,120 @@
+@import '~@swimlane/ngx-datatable/index.css';
+@import '~@swimlane/ngx-datatable/themes/bootstrap.scss';
+@import '~@swimlane/ngx-datatable/assets/icons.css';
+ 
+ 
+
+// media query for Small & Medium devices
+@media (max-width: 768px) {
+  .page-count {
+    display: none;
+  }
+
+  .datatable-pager {
+    text-align: center !important;
+    margin: 0 !important;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .desktop-hidden {
+    display: initial;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 800px) {
+  .desktop-hidden {
+    display: none;
+  }
+
+  .mobile-hidden {
+    display: initial;
+  }
+}
+
+html body.layout-dark {
+    // for dark and transparent layouts
+    .datatable-footer .pager li.disabled a {
+        color: #626164
+    }
+    // for dark layout
+    &:not(.layout-transparent) {
+        .ngx-datatable.bootstrap {
+            .datatable-header {
+                background-color: #101010;
+            }
+
+            .datatable-body-row {
+                border-color: #474748;
+            }
+
+            .datatable-footer {
+                color: #B2B1B5;
+
+                .pager li {
+
+                    &.disabled a,
+                    a {
+                        background-color: #1E1E1E;
+                        border-color: #474748;
+                    }
+
+                    &:not(.disabled) {
+                        &:hover a {
+                            background-color: #1E1E1E;
+                        }
+
+                        &:not(.active) a:hover {
+                            background-color: #1E1E1E !important;
+                            border-color: #474748 !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // for transparent layout
+    &.layout-transparent {
+        .ngx-datatable.bootstrap {
+            .datatable-header {
+                background-color: rgba(#000000, 0.12);
+            }
+
+            .datatable-body-row {
+                border-color: rgba(#eee, 0.2);               
+            }
+
+            .datatable-footer {
+                color: #D6D5D8;
+
+                .pager li {
+
+                    &.disabled a,
+                    a {
+                        background-color: rgba(#000000, 0.12);
+                        border-color: rgba(#000000, 0.12);
+                    }
+
+                    &:not(.disabled) {
+                        a {
+                            color: #D6D5D8;
+                        }
+
+                        &:hover a {
+                            background-color: rgba(#000000, 0.12);
+                        }
+
+                        &:not(.active) a:hover {
+                            background-color: rgba(#000000, 0.12) !important;
+                            border-color: rgba(#000000, 0.12) !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

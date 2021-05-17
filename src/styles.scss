@@ -1,1 +1,20 @@
 @import "assets/base";
+
+.button-bar {
+    margin-bottom: 10px;
+    margin-left: auto;
+    display: flex;
+}
+
+.notifications-container {
+    line-height: 60px !important;
+    width: 100%;
+}
+
+notification-bar {
+    z-index: 9999;
+}
+
+.notification {
+    font-size: 17px !important;
+}
