@@ -1,15 +1,14 @@
 import { Injectable, Injector } from '@angular/core';
-import { Router } from '@angular/router';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, pipe, of } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { tap } from 'rxjs/operators';
+import { tap, finalize, concatMap, delay, retryWhen } from 'rxjs/operators';
 
 import { SessionService } from "./session.service";
 import { AuthenticationService } from './authentication.service';
-
+import { NavigationService } from './navigation.service';
 import { AlertService } from './alert.service';
 
 
@@ -18,114 +17,163 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     private baseUrl = environment.apiBaseUrl;
 
-    constructor(
-        private router: Router,
-        private sessionService: SessionService,
-        private authService: AuthenticationService,
-        private alertService: AlertService
-    ) { }
+    private authService: AuthenticationService;
+    private sessionService: SessionService;
+    private alertService: AlertService;
+    private navigationService: NavigationService;
+
+    private retryCount = 3;
+    private retryWaitMilliSeconds = 500;
+
+    constructor(private injector: Injector) {
+
+        this.alertService = this.injector.get(AlertService);
+        this.authService = this.injector.get(AuthenticationService);
+        this.sessionService = this.injector.get(SessionService);
+        this.navigationService = this.injector.get(NavigationService);
+    }
+
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
+        let ok: string;
         const started = Date.now();
 
-        //add authorization header with jwt token if available
+        // Handle request
+        request = this.addAuthHeader(request);
+
+        return next.handle(request).pipe(
+            tap(event => ok = event instanceof HttpResponse ? 'succeeded' : ''),
+            retryWhen(error => error.pipe(concatMap((error, count) => {
+                ok = 'failed'
+                if (count <= this.retryCount && this.isRetry(error)) {
+                    return of(error);
+                }
+                return this.handleResponseError(error, request, next);
+            }), delay(this.retryWaitMilliSeconds),
+                tap(err => console.log("Retrying...")))
+            ), finalize(() => {
+                this.consoleLogRequestTime(started, ok, request);
+            }))
+    }
+
+    handleResponseError(error, request?: HttpRequest<any>, next?: HttpHandler) {
+
+        // Server unavailable 
+        if (error.status === 0 && (error.statusText === '' || error.statusText === 'Unknown Error')) {
+            this.alertService.error('Unable to connect to the server, please try again in a couple of seconds.');
+        }
+
+        // Business error
+        else if (error.status === 400) {
+            // Show message
+            this.broadcastFriendlyErrorMessage(error);
+        }
+
+        // Invalid token error
+        else if (error.status === 401) {
+            this.authService.logOut();
+            this.navigationService.goToLogin()
+        }
+
+        // Access denied error
+        else if (error.status === 403) {
+            this.alertService.warning("You don't have permission. Please contact your administrator");
+        }
+
+        // Server error
+        else if (error.status === 500) {
+            if (error.error) {
+                this.alertService.error(error.error);
+            }
+        }
+
+        // Maintenance error
+        else if (error.status === 503) {
+            // Redirect to the maintenance page
+            this.alertService.error(error.response);
+        }
+
+        else if (error.responseStatus === 0) {
+            this.alertService.error('Error occured, while uploading file');
+        }
+
+        return throwError(error);
+    }
+
+    broadcastFriendlyErrorMessage(error) {
+        let msg = '';
+        if (typeof error.error === "object") {
+            let validationMessage = [];
+            let validationErrorDictionary = error.error.errors;
+            for (let fieldName in validationErrorDictionary) {
+                if (validationErrorDictionary.hasOwnProperty(fieldName)) {
+                    validationMessage.push(validationErrorDictionary[fieldName]);
+                }
+            }
+            msg = validationMessage.join(', ');
+        }
+        else if (error.error.length > 0 && error.error[0].description) {
+            let validationMessage = [];
+            for (let index = 0; index < error.error.length; index++) {
+                validationMessage.push(error.error[index].description);
+            }
+            msg = validationMessage.join(', ');
+        }
+        else if (error.error) {
+            msg = error.error;
+        }
+        else {
+            msg = error.message;
+        }
+        this.alertService.error(msg);
+    }
+
+
+    reAuthenticate(): Observable<any> {
+        // Do your auth call here
+        return;
+    }
+
+    consoleLogRequestTime(started, ok: string, request: HttpRequest<any>) {
+        const action = request.urlWithParams.replace(this.baseUrl, '');
+        if (this.isNewVersionCheckRoute(action))
+            return;
+
+        const elapsed = Date.now() - started;
+        const msg = `${action} ${ok} in ${elapsed} ms.`;
+        console.log(msg);
+    }
+
+    canAddAuthHeader(): boolean {
+        const authToken = this.sessionService.authToken();
+        if (this.sessionService.userId() && authToken) {
+            return true;
+        }
+        return false;
+    }
+
+    isRetry(error) {
+        // Allow retry on if Server unavailable         
+        return (error.status === 0 && (error.statusText === '' || error.statusText === 'Unknown Error'))
+    }
+
+
+    addAuthHeader(request: HttpRequest<any>) {
         const authToken = this.sessionService.authToken();
 
-        const isTokenEndPoint = request.url.match('/api/token');
-        if (isTokenEndPoint === null && this.sessionService.userId() && authToken) {
-            request = request.clone({
+        if (this.canAddAuthHeader()) {
+            return request.clone({
                 setHeaders: {
-                    Authorization: `Bearer ${authToken}`
+                    "Authorization": `Bearer ${authToken}`
                 }
             });
         }
-
-        return next.handle(request).pipe(
-            tap(event => {
-                if (event instanceof HttpResponse) {
-                    const action = request.urlWithParams.replace(this.baseUrl, '');
-                    const elapsed = Date.now() - started;
-
-                    if (!this.isNewVersionCheckRoute(action))
-                        console.log(`${action} took ${elapsed} milliseconds`);
-                }
-            },
-                error => {
-                    if (error.status === 401) {
-                        this.authService.logOut();
-                        this.router.navigate(['/login']);
-                    } else if (error.status === 403) {
-                        this.alertService.warning("You don't have permission. Please contact your administrator");
-                    } else {
-                        const action = request.urlWithParams.replace(this.baseUrl, '');
-                        if (!this.isNewVersionCheckRoute(action))
-                            this.broadcastFriendlyErrorMessage(error);
-                    }
-
-                    // return the error to the method that called it
-                    return throwError(error);
-                }));
+        return request;
     }
 
-    broadcastFriendlyErrorMessage(rejection) {
-        let msg = '';
-        if (rejection.status === 0 && (rejection.statusText === '' || rejection.statusText === 'Unknown Error')) {
-            this.alertService.error('Unable to connect to the server, please try again in a couple of seconds.');
-        } else if (rejection.status === 400) {
-            if (typeof rejection.error === "object") {
-                let validationMessage = [];
-                let validationErrorDictionary = rejection.error.errors;
-                for (let fieldName in validationErrorDictionary) {
-                    if (validationErrorDictionary.hasOwnProperty(fieldName)) {
-                        validationMessage.push(validationErrorDictionary[fieldName]);
-                    }
-                }
-                msg = validationMessage.join(', ');
-            }
-            else if (rejection.error.length > 0 && rejection.error[0].description) {
-                let validationMessage = [];
-                for (let index = 0; index < rejection.error.length; index++) {
-                    validationMessage.push(rejection.error[index].description);
-                }
-                msg = validationMessage.join(', ');
-            }
-            else if (rejection.error) {
-                msg = rejection.error;
-            }
-            else {
-                msg = rejection.message;
-            }
-            this.alertService.error(msg);
-        } else if (rejection.status === 404) {
-            if (rejection.message) {
-                this.alertService.error(rejection.message);
-            }
-        } else if (rejection.status === 500) {
-            if (rejection.error) {
-                this.alertService.error(rejection.error);
-            }
-            else if (rejection.message) {
-                let ex = rejection.message;
-                while (ex.innerException) {
-                    ex = ex.innerException;
-                }
-                this.alertService.error(ex.exceptionMessage);
-            }
-        } else if (rejection.responseStatus === 401) {
-            //this.authService.logOut();
-            this.router.navigate(['/login']);
-        } else if (rejection.responseStatus === 0) {
-            this.alertService.error('Error occured, while uploading file');
-        } else if (rejection.responseStatus === 400) {
-            if (rejection.response) { // jshint ignore:line
-                msg = rejection.response; // jshint ignore:line
-            }
-            this.alertService.error(msg);
-        }
-    }
-
-    isNewVersionCheckRoute(action): boolean {
+    isNewVersionCheckRoute(action: string | string[]): boolean {
         return action.indexOf('version') >= 0;
     }
 }
+

@@ -58,13 +58,11 @@ export class UsersComponent implements OnInit {
         this.users$ = this.store.pipe(select(fromUser.getUsers));
     }
 
-    refreshClicked() {
-        console.log('refreshClicked');
+    refreshClicked() {       
         this.getUsers(true);
     }
 
-    onNewClicked() {
-        console.log('onNewClicked');
+    onNewClicked() {       
         this.navigationService.goToUser(0);
     }
 
