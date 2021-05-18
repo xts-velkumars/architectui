@@ -7,9 +7,11 @@ import {animate, query, style, transition, trigger} from '@angular/animations';
   templateUrl: './base-layout.component.html',
   animations: [
 
-    trigger('architectUIAnimation', [
-  
-    ])
+      trigger('architectUIAnimation', [
+          transition('* <=> *', [
+           
+          ]),
+      ])
   ]
 })
 

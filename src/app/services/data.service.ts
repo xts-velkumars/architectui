@@ -16,11 +16,9 @@ export class DataService {
 
     getData(route: string, refresh: boolean) {
         if (this.dataForRouteIsCached(route, refresh)) {
-             console.log("From Cache");
             return of(this.cache[route]);
         } else { // no cached data or refresh requested
             return this.http.get<any>(this.baseUrl + route).pipe(map(response => {
-                console.log("From API");
                 this.cache[route] = response;
                 return response;
             }));

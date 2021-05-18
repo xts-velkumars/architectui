@@ -7,8 +7,8 @@ import { Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { tap } from 'rxjs/operators';
 
-//import { UserSessionService } from './usersession.service';
-//import { AuthenticationService } from './authentication.service';
+import { SessionService } from "./session.service";
+import { AuthenticationService } from './authentication.service';
 
 import { AlertService } from './alert.service';
 
@@ -20,8 +20,8 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     constructor(
         private router: Router,
-        //private sessionService: UserSessionService,
-        //private authService: AuthenticationService,
+        private sessionService: SessionService,
+        private authService: AuthenticationService,
         private alertService: AlertService
     ) { }
 
@@ -29,17 +29,17 @@ export class HttpInterceptorService implements HttpInterceptor {
 
         const started = Date.now();
 
-        // add authorization header with jwt token if available
-        //const authToken = this.sessionService.authToken();
+        //add authorization header with jwt token if available
+        const authToken = this.sessionService.authToken();
 
-        //const isTokenEndPoint = request.url.match('/api/token');
-        //if (isTokenEndPoint === null && this.sessionService.userId() && authToken) {
-        //    request = request.clone({
-        //        setHeaders: {
-        //            Authorization: `Bearer ${authToken}`
-        //        }
-        //    });
-        //}
+        const isTokenEndPoint = request.url.match('/api/token');
+        if (isTokenEndPoint === null && this.sessionService.userId() && authToken) {
+            request = request.clone({
+                setHeaders: {
+                    Authorization: `Bearer ${authToken}`
+                }
+            });
+        }
 
         return next.handle(request).pipe(
             tap(event => {
@@ -53,10 +53,10 @@ export class HttpInterceptorService implements HttpInterceptor {
             },
                 error => {
                     if (error.status === 401) {
-                        //this.authService.logOut();
+                        this.authService.logOut();
                         this.router.navigate(['/login']);
                     } else if (error.status === 403) {
-                        //this.alertService.warning("You don't have permission. Please contact your administrator");
+                        this.alertService.warning("You don't have permission. Please contact your administrator");
                     } else {
                         const action = request.urlWithParams.replace(this.baseUrl, '');
                         if (!this.isNewVersionCheckRoute(action))

@@ -26,9 +26,7 @@ export const initialState = userAdapter.getInitialState({
 export function usersReducer(state = initialState, action: userActions.UserActions): UserState {
     switch (action.type) {
         case userActions.UsersActionTypes.GET_USERS_SUCCESS: {
-            console.log(action.data);
-
-            return userAdapter.addMany(action.data, {
+           return userAdapter.addMany(action.data, {
                 ...state
             });
         }
@@ -39,8 +37,7 @@ export function usersReducer(state = initialState, action: userActions.UserActio
             };
         }
         case userActions.UsersActionTypes.GET_USER_SUCCESS: {
-            console.log(action.data);
-            return {
+          return {
                 ...state,
                 selectedUser: action.data
             };

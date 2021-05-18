@@ -1,6 +1,14 @@
-<app-page-title [heading]="heading" [subheading]="subheading" [icon]="icon"></app-page-title>
+<app-page-title [isVisible]="true"
+                [heading]="heading"
+                [subheading]="subheading"
+                [icon]="icon"
+                [refreshButtonText] ="'Refresh'"
+                [addNewButtonText]="'Add User'"
+                (onRefreshClick)="refreshClicked()"
+                (onAddNewClick)="onNewClicked()">
+</app-page-title>
 
-<div class="row">
+<!--<div class="row">
     <div class="pull-right button-bar">
         <button type="button" title="Refresh" class="mb-2 mr-2 btn-shadow d-inline-flex align-items-center btn btn-secondary" (click)="refresh()">
             <i-feather name="refresh-cw" class="mr-2"></i-feather>
@@ -11,7 +19,7 @@
             Add User
         </button>
     </div>
-</div>
+</div>-->
 
 <ngx-datatable class="bootstrap core-bootstrap"
                [rows]="(users$ | async)"

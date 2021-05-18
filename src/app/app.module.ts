@@ -26,11 +26,18 @@ import { PagesLayoutComponent } from './layout/pages-layout/pages-layout.compone
 
 import {
     DataService, UserService, AlertService,
-    HttpInterceptorService, NavigationService
-
+    HttpInterceptorService, NavigationService,
+    AuthenticationService, SessionService,
+    ModalService
 } from "./services";
 
 
+import {
+    ConfirmationModalComponent,
+    GenericMessageModalComponent
+} from './shared/component/modalcomponent';
+
+import { SpinnerComponent } from './shared/component/spinnercomponent/spinner.component';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     suppressScrollX: true
@@ -66,6 +73,9 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         UserService,
         AlertService,
         NavigationService,
+        AuthenticationService,
+        ModalService,
+        SessionService,
         {
             provide:
                 PERFECT_SCROLLBAR_CONFIG,
@@ -79,7 +89,13 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
             multi: true
         }
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
+    entryComponents:
+        [
+            SpinnerComponent,
+            ConfirmationModalComponent,
+            GenericMessageModalComponent            
+        ]
 })
 
 export class AppModule { }

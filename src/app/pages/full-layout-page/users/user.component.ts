@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store'
 
-import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { User } from "../../../models/users/user.model";
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
-import { UtilityService, UserService, AlertService, NavigationService } from "../../../services/index"
+import { UtilityService, ModalService } from "../../../services/index"
 
 import * as fromActions from "./store/user.actions";
 import * as fromUser from './store/user.reducers';
+
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 
 @Component({
     selector: 'app-user',
@@ -16,6 +18,7 @@ import * as fromUser from './store/user.reducers';
     styleUrls: ['./user.component.sass']
 })
 export class UserComponent implements OnInit {
+
     heading = 'Form Controls';
     subheading = '';
     icon = 'pe-7s-display1 icon-gradient bg-premium-dark';
@@ -28,15 +31,30 @@ export class UserComponent implements OnInit {
 
     constructor(private formBuilder: FormBuilder,
         private route: ActivatedRoute,
+        private modalService: ModalService,
         private store: Store<fromUser.UserState>,
-        private userService: UserService,
-        private navigationService: NavigationService,
-        private alertService: AlertService,
         private utilityService: UtilityService) {
 
         this.route.params.subscribe(params => {
             this.id = +params['id'];
-        });        
+        });
+    }
+
+    canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
+
+        if (this.userForm.dirty) {
+
+            return this.modalService.questionModal("Discard Confirmation", 'Are you sure you want to discard your changes?', false)
+                .result.then(function (result) {
+                    if (result)
+                        return true;
+                    else
+                        return false;
+                }, function () {
+                    return false;
+                });
+        }
+        return of(true);
     }
 
     ngOnInit(): void {

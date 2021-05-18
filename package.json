@@ -35,7 +35,9 @@
     "animate-sass": "^0.8.2",
     "bootstrap": "^4.6.0",
     "font-awesome": "^4.7.0",
+    "jwt-decode": "^3.1.2",
     "lodash-es": "^4.17.21",
+    "moment-timezone": "^0.5.33",
     "ng-http-loader": "^6.0.1",
     "ngx-mask": "^11.1.5",
     "ngx-notification-bar": "^1.0.0",
@@ -54,8 +56,11 @@
     "@fortawesome/fontawesome-free": "^5.8.1",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.3",
+    "@types/lodash": "^4.14.169",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
+    "cross-env": "^5.0.5",
+    "increase-memory-limit": "^1.0.3",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.1.1",
@@ -66,8 +71,6 @@
     "protractor": "~7.0.0",
     "ts-node": "~7.0.0",
     "tslint": "~6.1.0",
-    "typescript": "~4.0.7",
-    "increase-memory-limit": "^1.0.3",
-    "cross-env": "^5.0.5"
+    "typescript": "~4.0.7"
   }
 }

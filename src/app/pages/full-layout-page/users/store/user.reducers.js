@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || function () {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUser = exports.getError = exports.getUsers = exports.userFeatureState = exports.usersStateFeatureKey = exports.selectIds = exports.selectAll = exports.usersReducer = exports.initialState = exports.userAdapter = void 0;
+exports.getUser = exports.getError = exports.getUsers = exports.userFeatureState = exports.usersStateFeatureKey = exports.selectEntities = exports.selectIds = exports.selectAll = exports.usersReducer = exports.initialState = exports.userAdapter = void 0;
 var store_1 = require("@ngrx/store");
 var userActions = require("./user.actions");
 var entity_1 = require("@ngrx/entity");
@@ -25,7 +25,7 @@ function usersReducer(state, action) {
     if (state === void 0) { state = exports.initialState; }
     switch (action.type) {
         case userActions.UsersActionTypes.GET_USERS_SUCCESS: {
-            return exports.userAdapter.addMany(action.data, state);
+            return exports.userAdapter.addMany(action.data, __assign({}, state));
         }
         case userActions.UsersActionTypes.GET_USERS_FAILURE: {
             return __assign(__assign({}, state), { error: action.error });
@@ -45,13 +45,19 @@ function usersReducer(state, action) {
         case userActions.UsersActionTypes.SAVE_USER_FAILURE: {
             return __assign(__assign({}, state), { error: action.error });
         }
+        case userActions.UsersActionTypes.DELETE_USER_SUCCESS: {
+            return exports.userAdapter.removeOne(action.payload, __assign({}, state));
+        }
+        case userActions.UsersActionTypes.DELETE_USER_FAILURE: {
+            return __assign(__assign({}, state), { error: action.error });
+        }
         default: {
             return state;
         }
     }
 }
 exports.usersReducer = usersReducer;
-exports.selectAll = (_a = exports.userAdapter.getSelectors(), _a.selectAll), exports.selectIds = _a.selectIds;
+exports.selectAll = (_a = exports.userAdapter.getSelectors(), _a.selectAll), exports.selectIds = _a.selectIds, exports.selectEntities = _a.selectEntities;
 exports.usersStateFeatureKey = "users";
 exports.userFeatureState = store_1.createFeatureSelector(exports.usersStateFeatureKey);
 exports.getUsers = store_1.createSelector(exports.userFeatureState, exports.selectAll);

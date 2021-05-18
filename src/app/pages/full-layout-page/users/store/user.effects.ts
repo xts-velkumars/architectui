@@ -43,29 +43,14 @@ export class ProductEffects {
                 this.userService.saveUser(action.payload).pipe(
                     map(response => new userActions.SaveUserSuccess(response)),
                     tap(() => {
-                        debugger;
                         let msg = action.payload.id > 0 ? 'User updated successfully' : 'User added successfully';
                         this.alertService.success(msg);
-                        this.navigationService.goToUsers()
+                        this.navigationService.goToUsers();
                     }),
                     catchError(error => of(new userActions.SaveUserFailure(error))))
-            ),
-
+            )
         )
     );
-
-
-    // deleteUser$ = createEffect(() =>
-    //     this.actions$.pipe(
-    //         ofType<userActions.DeleteUser>(userActions.UsersActionTypes.DELETE_USER),
-    //         concatMap(action => this.userService.deleteUser(action.id)),
-    //         map((data) => new userActions.DeleteUserSuccess(data)),
-    //         tap(() => {
-    //             this.alertService.success('User deleted successfully');
-    //         }),
-    //         catchError(error => of(new userActions.DeleteUserFailure(error)))
-    //     ), { dispatch: true }
-    // );
 
 
     deleteUser$: Observable<Action> = createEffect(() =>
@@ -77,6 +62,6 @@ export class ProductEffects {
                     map(() => new userActions.DeleteUserSuccess(id)),
                     catchError(error => of(new userActions.DeleteUserFailure(error)))
                 )
-            ),tap(() =>  this.navigationService.goToUsers())
-        ))      
+            )
+        ));    
 }

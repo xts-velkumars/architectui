@@ -25,7 +25,10 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets/images"
+              "src/assets/images",
+			   "src/assets/timezones.json",
+			   "src/Web.config",
+			  "src/.htaccess",
             ],
             "styles": [
               "src/styles.scss",

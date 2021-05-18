@@ -10,6 +10,16 @@
                     {{subheading}}
                 </div>
             </div>
-        </div>       
+        </div>
+        <div class="page-title-actions" *ngIf="isVisible">
+            <button type="button" class="mb-2 mr-2 btn-shadow d-inline-flex align-items-center btn btn btn-dark" (click)="onRefreshClicked($event)">
+                <i-feather name="refresh-cw" class="mr-2"></i-feather>
+                {{refreshButtonText}}
+            </button>
+            <button type="button" class="mb-2 mr-2 btn-shadow d-inline-flex align-items-center btn btn-success" (click)="onAddNewClicked($event)">
+                <i-feather name="plus" class="mr-2"></i-feather>
+                {{addNewButtonText}}
+            </button>
+        </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { faPlus, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { Store, select } from "@ngrx/store";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 import {
     ColumnMode,
@@ -10,7 +10,7 @@ import {
 } from '@swimlane/ngx-datatable';
 
 
-
+import { NavigationService } from "../../../services/navigation.service";
 import { Users } from "../../../models/users/users.model";
 
 import * as fromUserActions from "./store/user.actions";
@@ -24,10 +24,11 @@ import * as fromUser from './store/user.reducers';
 })
 export class UsersComponent implements OnInit {
 
-    @ViewChild(DatatableComponent)table: DatatableComponent;
+    @ViewChild(DatatableComponent) table: DatatableComponent;
     public ColumnMode = ColumnMode;
-    public rows : Users[] = [];
-   
+    public rows: Users[] = [];
+
+
     public columns = [
         { name: 'Id', prop: 'id' },
         { name: 'Email', prop: 'emailAddress' },
@@ -45,7 +46,8 @@ export class UsersComponent implements OnInit {
     users$: Observable<Users[]>;
     error$: Observable<String>;
 
-    constructor(private store: Store<fromUser.UserState>) {}
+    constructor(private store: Store<fromUser.UserState>,
+        private navigationService: NavigationService) { }
 
     ngOnInit(): void {
         this.getUsers(false);
@@ -56,8 +58,14 @@ export class UsersComponent implements OnInit {
         this.users$ = this.store.pipe(select(fromUser.getUsers));
     }
 
-    refresh() {
+    refreshClicked() {
+        console.log('refreshClicked');
         this.getUsers(true);
+    }
+
+    onNewClicked() {
+        console.log('onNewClicked');
+        this.navigationService.goToUser(0);
     }
 
     onDelete(data: Users) {
@@ -66,4 +74,5 @@ export class UsersComponent implements OnInit {
             this.users$ = this.store.pipe(select(fromUser.getUsers));
         }
     }
+
 }

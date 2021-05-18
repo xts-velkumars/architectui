@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { UsersComponent } from './users.component';
 import { UserComponent } from './user.component';
 
+import {ComponentChangeDetectionGuard} from "../../../guards/component-changedetection-guard.service"
 
 const routes: Routes = [
     {
@@ -26,7 +27,7 @@ const routes: Routes = [
     {
         path: ':id',
         component: UserComponent,
-        //canActivate: [AuthGuard],
+        canDeactivate: [ComponentChangeDetectionGuard],
         data: {
             title: 'User',
             //requiredPermission: [RoleType.SuperAdmin]
