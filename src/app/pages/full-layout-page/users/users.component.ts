@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { faPlus, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { Store, select } from "@ngrx/store";
 import { Observable, Subject } from "rxjs";
@@ -22,7 +22,7 @@ import * as fromUser from './store/user.reducers';
     templateUrl: './users.component.html',
     styleUrls: ['./users.component.sass']
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, AfterViewInit  {
 
     @ViewChild(DatatableComponent) table: DatatableComponent;
     public ColumnMode = ColumnMode;
@@ -47,7 +47,13 @@ export class UsersComponent implements OnInit {
     error$: Observable<String>;
 
     constructor(private store: Store<fromUser.UserState>,
-        private navigationService: NavigationService) { }
+        private navigationService: NavigationService,
+        private changeDetectorRef: ChangeDetectorRef) { }
+
+
+    ngAfterViewInit(): void {
+        this.changeDetectorRef.detectChanges();
+    }
 
     ngOnInit(): void {
         this.getUsers(false);

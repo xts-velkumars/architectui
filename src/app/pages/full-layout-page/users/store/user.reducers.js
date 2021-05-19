@@ -24,9 +24,10 @@ exports.initialState = exports.userAdapter.getInitialState({
 function usersReducer(state, action) {
     if (state === void 0) { state = exports.initialState; }
     switch (action.type) {
-        case userActions.UsersActionTypes.GET_USERS_SUCCESS: {
-            return exports.userAdapter.addMany(action.data, __assign({}, state));
-        }
+        case userActions.UsersActionTypes.GET_USERS_SUCCESS:
+            {
+                return exports.userAdapter.addMany(action.data, __assign({}, state));
+            }
         case userActions.UsersActionTypes.GET_USERS_FAILURE: {
             return __assign(__assign({}, state), { error: action.error });
         }

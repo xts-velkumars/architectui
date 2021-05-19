@@ -25,7 +25,8 @@ export const initialState = userAdapter.getInitialState({
 
 export function usersReducer(state = initialState, action: userActions.UserActions): UserState {
     switch (action.type) {
-        case userActions.UsersActionTypes.GET_USERS_SUCCESS: {
+        case userActions.UsersActionTypes.GET_USERS_SUCCESS:
+        {
            return userAdapter.addMany(action.data, {
                 ...state
             });

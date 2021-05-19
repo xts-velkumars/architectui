@@ -4,7 +4,7 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse, Htt
 import { Observable, throwError, pipe, of } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { tap, finalize, concatMap, delay, retryWhen } from 'rxjs/operators';
+import { tap, finalize, concatMap, delay, retryWhen, scan, takeWhile } from 'rxjs/operators';
 
 import { SessionService } from "./session.service";
 import { AuthenticationService } from './authentication.service';
@@ -42,62 +42,72 @@ export class HttpInterceptorService implements HttpInterceptor {
         // Handle request
         request = this.addAuthHeader(request);
 
+        //return next.handle(request).pipe(
+        //    tap(event => ok = event instanceof HttpResponse ? 'succeeded' : ''),
+        //    retryWhen(error => error.pipe(concatMap((error, count) => {
+        //        ok = 'failed';
+        //        if (this.isRetry(error)) {
+        //            return of(error);
+        //        }
+        //        return this.handleResponseError(error, request, next);
+        //    }),
+        //        scan(initialCount => initialCount + 1, 0),
+        //        takeWhile(count => count <= this.retryCount),
+        //        delay(this.retryWaitMilliSeconds),
+        //        tap(err => console.log("Retrying..." + new Date().toTimeString())))
+        //    ),
+        //    finalize(() => {
+        //        this.consoleLogRequestTime(started, ok, request);
+        //    }));
+
+        // Handle request
+        request = this.addAuthHeader(request);
+
         return next.handle(request).pipe(
             tap(event => ok = event instanceof HttpResponse ? 'succeeded' : ''),
             retryWhen(error => error.pipe(concatMap((error, count) => {
-                ok = 'failed'
-                if (count <= this.retryCount && this.isRetry(error)) {
-                    return of(error);
-                }
-                return this.handleResponseError(error, request, next);
-            }), delay(this.retryWaitMilliSeconds),
-                tap(err => console.log("Retrying...")))
-            ), finalize(() => {
+                        ok = 'failed';
+                        if (count <= this.retryCount && this.isRetry(error)) {
+                            return of(error);
+                        }
+                        return this.handleResponseError(error, request, next);
+                    }),
+                    delay(this.retryWaitMilliSeconds),
+                    tap(err => console.log("Retrying...", err)))
+            ),
+            finalize(() => {
                 this.consoleLogRequestTime(started, ok, request);
-            }))
+            }));
     }
 
     handleResponseError(error, request?: HttpRequest<any>, next?: HttpHandler) {
-
-        // Server unavailable 
-        if (error.status === 0 && (error.statusText === '' || error.statusText === 'Unknown Error')) {
-            this.alertService.error('Unable to connect to the server, please try again in a couple of seconds.');
+        switch (error.status) {
+        case 0: // Server unavailable 
+                if ((error.statusText === '' || error.statusText === 'Unknown Error')) {
+                    this.alertService.error('Unable to connect to the server, please try again in a couple of seconds.');
+                }
+                else if (error.responseStatus === 0)
+                    this.alertService.error('Error occurred, while uploading file');
+                break;
+            case 400: // Business error
+                this.broadcastFriendlyErrorMessage(error);
+                break;
+            case 401:  // Invalid token error
+                this.authService.logOut();
+                this.navigationService.goToLogin();
+                break;
+            case 403:  // Access denied error
+                this.alertService.warning("You don't have permission. Please contact your administrator");
+                break;
+            case 500: // Server error
+                if (error.error)
+                    this.alertService.error(error.error);
+                break;
+            case 503:
+                // Redirect to the maintenance page
+                this.alertService.error(error.response);
+            default:
         }
-
-        // Business error
-        else if (error.status === 400) {
-            // Show message
-            this.broadcastFriendlyErrorMessage(error);
-        }
-
-        // Invalid token error
-        else if (error.status === 401) {
-            this.authService.logOut();
-            this.navigationService.goToLogin()
-        }
-
-        // Access denied error
-        else if (error.status === 403) {
-            this.alertService.warning("You don't have permission. Please contact your administrator");
-        }
-
-        // Server error
-        else if (error.status === 500) {
-            if (error.error) {
-                this.alertService.error(error.error);
-            }
-        }
-
-        // Maintenance error
-        else if (error.status === 503) {
-            // Redirect to the maintenance page
-            this.alertService.error(error.response);
-        }
-
-        else if (error.responseStatus === 0) {
-            this.alertService.error('Error occured, while uploading file');
-        }
-
         return throwError(error);
     }
 
@@ -155,7 +165,7 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     isRetry(error) {
         // Allow retry on if Server unavailable         
-        return (error.status === 0 && (error.statusText === '' || error.statusText === 'Unknown Error'))
+        return (error.status === 0 && (error.statusText === '' || error.statusText === 'Unknown Error'));
     }
 
 
