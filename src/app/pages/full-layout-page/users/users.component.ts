@@ -1,16 +1,15 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { faPlus, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { Store, select } from "@ngrx/store";
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
 
 import {
     ColumnMode,
-    DatatableComponent,
-    SelectionType
+    DatatableComponent
 } from '@swimlane/ngx-datatable';
 
 
-import { NavigationService } from "../../../services/navigation.service";
+import { NavigationService, ModalService } from "../../../services";
 import { Users } from "../../../models/users/users.model";
 
 import * as fromUserActions from "./store/user.actions";
@@ -22,7 +21,7 @@ import * as fromUser from './store/user.reducers';
     templateUrl: './users.component.html',
     styleUrls: ['./users.component.sass']
 })
-export class UsersComponent implements OnInit, AfterViewInit  {
+export class UsersComponent implements OnInit, AfterViewInit {
 
     @ViewChild(DatatableComponent) table: DatatableComponent;
     public ColumnMode = ColumnMode;
@@ -48,6 +47,7 @@ export class UsersComponent implements OnInit, AfterViewInit  {
 
     constructor(private store: Store<fromUser.UserState>,
         private navigationService: NavigationService,
+        private modalService: ModalService,
         private changeDetectorRef: ChangeDetectorRef) { }
 
 
@@ -64,19 +64,23 @@ export class UsersComponent implements OnInit, AfterViewInit  {
         this.users$ = this.store.pipe(select(fromUser.getUsers));
     }
 
-    refreshClicked() {       
+    refreshClicked() {
         this.getUsers(true);
     }
 
-    onNewClicked() {       
+    onNewClicked() {
         this.navigationService.goToUser(0);
     }
 
     onDelete(data: Users) {
-        if (confirm("Are You Sure You want to Delete the User?")) {
-            this.store.dispatch(new fromUserActions.DeleteUser(data.id));
-            this.users$ = this.store.pipe(select(fromUser.getUsers));
-        }
-    }
 
+        return this.modalService.questionModal("Delete Confirmation", 'Are you sure you want to delete the user?', true)
+            .result.then(result => {
+                if (result) {
+                    this.store.dispatch(new fromUserActions.DeleteUser(data.id));
+                    this.users$ = this.store.pipe(select(fromUser.getUsers));
+                }
+
+            }, () => false);
+    }
 }

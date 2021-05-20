@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NotificationBarModule } from 'ngx-notification-bar'
 import { NgHttpLoaderModule } from 'ng-http-loader';
+import {NgxPermissionsModule, NgxPermissionsService  } from 'ngx-permissions';
 
 import { reducers, metaReducers } from './state/app.state';
 import { EffectsModule } from '@ngrx/effects';
@@ -19,6 +20,7 @@ import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 
 // LAYOUT
 import { LayoutModule } from './layout/layout.module';
+import { SharedModule } from '../app/shared/shared.module'
 import { AppComponent } from './app.component';
 import { BaseLayoutComponent } from './layout/base-layout/base-layout.component';
 import { PagesLayoutComponent } from './layout/pages-layout/pages-layout.component';
@@ -54,7 +56,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
-        LayoutModule,
+        SharedModule,
 
         //Ngrx Store 
         EffectsModule.forRoot([]),
@@ -66,9 +68,11 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         NgbModule,
         HttpClientModule,
         NotificationBarModule,
-        NgHttpLoaderModule.forRoot()
+        NgHttpLoaderModule.forRoot(),
+        NgxPermissionsModule.forRoot()
     ],
     providers: [
+       // NgxPermissionsService,
         DataService,
         UserService,
         AlertService,

@@ -4,7 +4,6 @@ import {Routes, RouterModule} from '@angular/router';
 import {BaseLayoutComponent} from './layout/base-layout/base-layout.component';
 import { PagesLayoutComponent } from './layout/pages-layout/pages-layout.component';
 
-
 import { Full_ROUTES } from './layout/routes/full-layout.routes';
 import { CONTENT_ROUTES } from './layout/routes/content-layout.routes';
 import {AuthGuardChild} from "./guards/auth-guardchild.service";

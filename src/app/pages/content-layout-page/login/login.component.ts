@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from "@angular/router";
+import { NgxPermissionsService } from 'ngx-permissions';
+
 import { AuthenticationService, SessionService, UtilityService } from "../../../services/index";
 
 
@@ -20,6 +22,8 @@ export class LoginComponent implements OnInit {
     constructor(private router: Router,
         private authService: AuthenticationService,
         private utilityService: UtilityService,
+        private sessionService: SessionService,
+        private permissionsService: NgxPermissionsService,
         private route: ActivatedRoute) {
         this.router = router;
     }
@@ -46,10 +50,17 @@ export class LoginComponent implements OnInit {
         this.loginFormSubmitted = true;
         if (this.loginForm.valid) {
             this.authService.login(this.loginForm.value.username, this.loginForm.value.password).subscribe(() => {
+                this.loadPermissions(this.sessionService.roleName());
                 this.router.navigate([this.returnUrl]);
             });
         } else {
             this.utilityService.validateFormControl(this.loginForm);
         }
+    }
+
+    loadPermissions(roleName: string) {
+        let permissions = [];
+        permissions.push(roleName);
+        this.permissionsService.loadPermissions(permissions);
     }
 }

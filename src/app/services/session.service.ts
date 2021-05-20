@@ -15,14 +15,18 @@ export class SessionService {
 
     create(session: any) {// jshint ignore:line
         this.setLocalStorageProperties(session);
+        this.setSessionProperties(session);
     }
 
     destroy() {// jshint ignore:line
         this.setLocalStorageProperties(new UserSession());
+        this.setSessionProperties(new UserSession());
     }
 
     load() { // jshint ignore:line
         const jsonData = localStorage.getItem(this.localStorageSessionKey);
+        if (jsonData)
+            this.setSessionProperties(jsonData);
         return jsonData;
     }
 
@@ -53,6 +57,10 @@ export class SessionService {
 
     setLocalStorageProperties(session: any) {// jshint ignore:line
         localStorage.setItem(this.localStorageSessionKey, JSON.stringify(session));
+    }
+
+    setSessionProperties(session: any) {// jshint ignore:line
+        sessionStorage.setItem(this.localStorageSessionKey, JSON.stringify(session));
     }
 
     getLocalStorageWithKey(key: any) {// jshint ignore:line

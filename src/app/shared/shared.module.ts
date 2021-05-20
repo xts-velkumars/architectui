@@ -1,22 +1,24 @@
 import { NgModule } from '@angular/core';
 import { ComponentsModule } from "./component/components.module";
 import { LayoutModule } from "../layout/layout.module";
-
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 
 @NgModule({
-  imports: [
+    imports: [
         ComponentsModule,
         LayoutModule,
-       
-  ],
-  declarations: [
+        NgxPermissionsModule
+    ],
+    declarations: [
 
-  ],
-  exports: [
-      ComponentsModule,
-      LayoutModule,
-  ]
+    ],
+    exports: [
+        ComponentsModule,
+        LayoutModule,
+        NgxPermissionsModule
+    ],
+    providers:[]
 })
 
 
